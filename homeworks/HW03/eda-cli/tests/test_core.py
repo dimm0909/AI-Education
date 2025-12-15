@@ -50,8 +50,7 @@ def test_summarize_dataset_basic():
 def test_missing_table_and_quality_flags():
     df = _sample_df()
     missing_df = missing_table(df)
-    test_df = _test_df()
-    missing_test_df = missing_table(test_df)
+
 
     assert "missing_count" in missing_df.columns
     assert missing_df.loc["age", "missing_count"] == 1
@@ -59,14 +58,17 @@ def test_missing_table_and_quality_flags():
     summary = summarize_dataset(df)
     flags = compute_quality_flags(summary, missing_df)
     assert 0.0 <= flags["quality_score"] <= 1.0
+    
 
+def test_new_evristics():
+    test_df = _test_df()
+    missing_test_df = missing_table(test_df)
     summary = summarize_dataset(test_df)
     flags = compute_quality_flags(summary, missing_test_df)
     assert "has_constant_columns" in flags
     assert "has_many_zero_values" in flags
     assert (flags["has_constant_columns"] == True) or (flags["has_constant_columns"] == False)
     assert (flags["has_many_zero_values"] == True) or (flags["has_many_zero_values"] == False)
-
 
 def test_correlation_and_top_categories():
     df = _sample_df()
