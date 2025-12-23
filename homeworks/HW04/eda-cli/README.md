@@ -35,6 +35,14 @@ uv run eda-cli overview data/example.csv
 - `--sep` – разделитель (по умолчанию `,`);
 - `--encoding` – кодировка (по умолчанию `utf-8`).
 
+### Запуск uvicorn
+
+```bash
+uv run uvicorn eda_cli.api:app --reload --port 8000
+```
+
+Добавлен новый эндпоинт: `POST /quality_flags_from_csv`
+
 ### Полный EDA-отчёт
 
 ```bash
