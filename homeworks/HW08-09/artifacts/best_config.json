@@ -1,5 +1,5 @@
 {
-  "dataset": "KMNIST",
+  "dataset": "EMNIST",
   "seed": 42,
   "model_config": {
     "hidden_sizes": [
@@ -7,13 +7,14 @@
       256,
       128
     ],
-    "use_dropout": false,
-    "use_bn": true
+    "use_dropout": true,
+    "dropout_p": 0.3,
+    "use_bn": false
   },
   "opt_config": {
     "type": "Adam",
     "lr": 0.001,
     "weight_decay": 0
   },
-  "epochs_trained": 13
+  "epochs_trained": 20
 }
