@@ -1,6 +1,0 @@
-{
-  "model": "GRU",
-  "hidden_size": 64,
-  "window_size": 24,
-  "epochs": 10
-}
