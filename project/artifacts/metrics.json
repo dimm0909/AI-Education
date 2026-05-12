@@ -1,0 +1,24 @@
+{
+  "selected_model": "improved_random_forest",
+  "selected_metrics": {
+    "rmse": 80.45598652530944,
+    "mae": 53.88708114618152,
+    "mape": 0.3538541234066286
+  },
+  "all_metrics": {
+    "baseline_linear_regression": {
+      "rmse": 133.8354237584468,
+      "mae": 98.797608202187,
+      "mape": 2.149538247045124
+    },
+    "improved_random_forest": {
+      "rmse": 80.45598652530944,
+      "mae": 53.88708114618152,
+      "mape": 0.3538541234066286
+    }
+  },
+  "thresholds": {
+    "low_to_medium": 64.0,
+    "medium_to_high": 204.0
+  }
+}

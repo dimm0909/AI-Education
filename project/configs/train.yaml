@@ -1,0 +1,17 @@
+logging:
+  level: INFO
+
+data:
+  full_path: data/raw/hour.csv
+  sample_path: data/sample/hour_sample.csv
+
+model:
+  test_size: 0.2
+  random_state: 42
+  random_forest:
+    n_estimators: 300
+    max_depth: 20
+
+artifacts:
+  model_path: artifacts/model.joblib
+  metrics_path: artifacts/metrics.json
