@@ -10,12 +10,27 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    mean_squared_error,
+    precision_score,
+    recall_score,
+)
 from sklearn.pipeline import Pipeline
 
 from src.features.transform import BASE_FEATURE_COLUMNS, build_model_frame, build_preprocessor
 
 TARGET_COLUMN = "cnt"
+
+try:
+    from catboost import CatBoostRegressor
+
+    CATBOOST_AVAILABLE = True
+except ImportError:
+    CATBOOST_AVAILABLE = False
 
 
 @dataclass
@@ -24,9 +39,28 @@ class TrainResult:
     model: Pipeline
     metrics: dict[str, Any]
     all_metrics: dict[str, dict[str, float]]
+    thresholds: dict[str, float]
 
 
-def regression_metrics(y_true: pd.Series, y_pred: np.ndarray) -> dict[str, float]:
+def _to_demand_classes(values: np.ndarray | pd.Series, thresholds: dict[str, float]) -> np.ndarray:
+    arr = np.asarray(values, dtype=float)
+    return np.where(
+        arr < thresholds["low_to_medium"],
+        0,
+        np.where(arr < thresholds["medium_to_high"], 1, 2),
+    )
+
+
+def build_demand_thresholds(y_train: pd.Series) -> dict[str, float]:
+    """Build low/medium/high demand thresholds based on target quantiles."""
+    q33, q66 = np.quantile(y_train, [0.33, 0.66])
+    return {
+        "low_to_medium": float(q33),
+        "medium_to_high": float(q66),
+    }
+
+
+def regression_metrics(y_true: pd.Series, y_pred: np.ndarray, thresholds: dict[str, float]) -> dict[str, float]:
     """Compute key metrics for regression."""
     rmse = float(np.sqrt(mean_squared_error(y_true, y_pred)))
     mae = float(mean_absolute_error(y_true, y_pred))
@@ -34,10 +68,24 @@ def regression_metrics(y_true: pd.Series, y_pred: np.ndarray) -> dict[str, float
     y_true_safe = y_true.replace(0, 1e-6)
     mape = float(mean_absolute_percentage_error(y_true_safe, y_pred))
 
+    # Classification-style metrics are computed on discretized demand levels
+    # (low/medium/high), so they are interpretable for the regression task.
+    y_true_cls = _to_demand_classes(y_true, thresholds)
+    y_pred_cls = _to_demand_classes(y_pred, thresholds)
+
+    accuracy = float(accuracy_score(y_true_cls, y_pred_cls))
+    precision_macro = float(precision_score(y_true_cls, y_pred_cls, average="macro", zero_division=0))
+    recall_macro = float(recall_score(y_true_cls, y_pred_cls, average="macro", zero_division=0))
+    f1_macro = float(f1_score(y_true_cls, y_pred_cls, average="macro", zero_division=0))
+
     return {
         "rmse": rmse,
         "mae": mae,
         "mape": mape,
+        "accuracy": accuracy,
+        "precision_macro": precision_macro,
+        "recall_macro": recall_macro,
+        "f1_macro": f1_macro,
     }
 
 
@@ -67,12 +115,38 @@ def _build_improved_model(random_state: int, n_estimators: int, max_depth: int) 
     )
 
 
+def _build_catboost_model(random_state: int, iterations: int, depth: int, learning_rate: float) -> Pipeline:
+    if not CATBOOST_AVAILABLE:
+        raise RuntimeError("CatBoost is not installed in this environment")
+
+    return Pipeline(
+        steps=[
+            ("preprocess", build_preprocessor()),
+            (
+                "model",
+                CatBoostRegressor(
+                    random_seed=random_state,
+                    iterations=iterations,
+                    depth=depth,
+                    learning_rate=learning_rate,
+                    loss_function="RMSE",
+                    verbose=False,
+                    allow_writing_files=False,
+                ),
+            ),
+        ]
+    )
+
+
 def train_models(
     train_df: pd.DataFrame,
     test_df: pd.DataFrame,
     random_state: int,
     n_estimators: int,
     max_depth: int,
+    catboost_iterations: int = 500,
+    catboost_depth: int = 8,
+    catboost_learning_rate: float = 0.05,
 ) -> TrainResult:
     """Train baseline and improved models, then select the best by RMSE."""
     x_train = build_model_frame(train_df)
@@ -80,6 +154,7 @@ def train_models(
 
     x_test = build_model_frame(test_df)
     y_test = test_df[TARGET_COLUMN]
+    thresholds = build_demand_thresholds(y_train)
 
     candidates: dict[str, Pipeline] = {
         "baseline_linear_regression": _build_baseline_model(),
@@ -89,6 +164,13 @@ def train_models(
             max_depth=max_depth,
         ),
     }
+    if CATBOOST_AVAILABLE:
+        candidates["improved_catboost_regressor"] = _build_catboost_model(
+            random_state=random_state,
+            iterations=catboost_iterations,
+            depth=catboost_depth,
+            learning_rate=catboost_learning_rate,
+        )
 
     all_metrics: dict[str, dict[str, float]] = {}
     trained_models: dict[str, Pipeline] = {}
@@ -96,7 +178,7 @@ def train_models(
     for model_name, model in candidates.items():
         model.fit(x_train, y_train)
         pred = model.predict(x_test)
-        all_metrics[model_name] = regression_metrics(y_test, pred)
+        all_metrics[model_name] = regression_metrics(y_test, pred, thresholds=thresholds)
         trained_models[model_name] = model
 
     best_name = min(all_metrics, key=lambda name: all_metrics[name]["rmse"])
@@ -106,16 +188,8 @@ def train_models(
         model=trained_models[best_name],
         metrics=all_metrics[best_name],
         all_metrics=all_metrics,
+        thresholds=thresholds,
     )
-
-
-def build_demand_thresholds(y_train: pd.Series) -> dict[str, float]:
-    """Build low/medium/high demand thresholds based on target quantiles."""
-    q33, q66 = np.quantile(y_train, [0.33, 0.66])
-    return {
-        "low_to_medium": float(q33),
-        "medium_to_high": float(q66),
-    }
 
 
 def save_artifacts(

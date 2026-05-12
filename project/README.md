@@ -10,7 +10,7 @@
 - **Краткое описание:**
   Проект решает задачу прогноза количества аренд велосипедов на следующий час по погодным и календарным признакам.
   Используется открытый датасет UCI Bike Sharing Dataset.
-  Реализованы baseline и улучшенная модель, а также FastAPI-сервис с endpoint’ами `/health` и `/predict`.
+  Реализованы baseline и две улучшенные модели (RandomForest и CatBoost), а также FastAPI-сервис с endpoint’ами `/health` и `/predict`.
 
 ---
 
@@ -173,7 +173,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests -q
 1. Запуск обучения `python -m src.train` и вывод выбранной модели + метрик.
 2. Запуск API `python -m src.service`.
 3. Запросы `GET /health` и `POST /predict` с 2 разными сценариями (например, рабочее утро и дождливый вечер).
-4. Сравнение baseline и improved модели по `artifacts/metrics.json`.
+4. Сравнение baseline, RandomForest и CatBoost по `artifacts/metrics.json` с метриками `RMSE`, `MAE`, `MAPE`, `accuracy`, `precision`, `recall`, `f1`.
 
 ---
 
@@ -185,7 +185,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests -q
 - отсутствует онлайн-мониторинг drift.
 
 Дальнейшее развитие:
-- добавить градиентный бустинг (CatBoost/LightGBM) и тюнинг;
+- добавить альтернативные бустинги (LightGBM/XGBoost) и более глубокий тюнинг CatBoost;
 - добавить логирование latency/ошибок в отдельное хранилище;
 - добавить периодическое переобучение модели по расписанию.
 
@@ -196,5 +196,5 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests -q
 Проект закрывает ключевые критерии шаблона:
 - есть рабочий сервис `/health` + `/predict`;
 - `/predict` использует сохранённую модель, а не заглушку;
-- есть EDA/эксперименты и сравнение baseline vs improved;
+- есть EDA/эксперименты и сравнение baseline, RandomForest и CatBoost;
 - есть конфиги, тесты, инструкции запуска и отчёт.

@@ -1,6 +1,6 @@
 # Конфиги BikeFlow
 
-- `train.yaml` — пути к данным, параметры split, гиперпараметры RandomForest, пути артефактов.
+- `train.yaml` — пути к данным, параметры split, гиперпараметры RandomForest и CatBoost, пути артефактов.
 - `service.yaml` — host/port FastAPI и путь к модели.
 - `.env.example` — пример переменных окружения.
 

@@ -11,6 +11,10 @@ model:
   random_forest:
     n_estimators: 300
     max_depth: 20
+  catboost:
+    iterations: 500
+    depth: 8
+    learning_rate: 0.05
 
 artifacts:
   model_path: artifacts/model.joblib

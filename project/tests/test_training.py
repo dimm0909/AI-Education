@@ -17,10 +17,21 @@ def test_training_and_artifact_saving(tmp_path: Path) -> None:
         random_state=42,
         n_estimators=40,
         max_depth=8,
+        catboost_iterations=60,
+        catboost_depth=6,
+        catboost_learning_rate=0.1,
     )
 
-    assert result.model_name in {"baseline_linear_regression", "improved_random_forest"}
+    assert result.model_name in {
+        "baseline_linear_regression",
+        "improved_random_forest",
+        "improved_catboost_regressor",
+    }
     assert result.metrics["rmse"] > 0
+    assert result.metrics["accuracy"] >= 0
+    assert result.metrics["precision_macro"] >= 0
+    assert result.metrics["recall_macro"] >= 0
+    assert result.metrics["f1_macro"] >= 0
 
     thresholds = build_demand_thresholds(train_df["cnt"])
 

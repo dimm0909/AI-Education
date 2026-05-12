@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import argparse
 import logging
-from pathlib import Path
 
 from src.data.dataset import get_train_test_split, load_dataset, pick_training_data
-from src.models.trainer import build_demand_thresholds, save_artifacts, train_models
+from src.models.trainer import save_artifacts, train_models
 from src.utils.config import load_yaml, resolve_path
 from src.utils.logging_utils import setup_logging
 
@@ -41,9 +40,10 @@ def main() -> None:
         random_state=int(model_cfg.get("random_state", 42)),
         n_estimators=int(model_cfg.get("random_forest", {}).get("n_estimators", 300)),
         max_depth=int(model_cfg.get("random_forest", {}).get("max_depth", 20)),
+        catboost_iterations=int(model_cfg.get("catboost", {}).get("iterations", 500)),
+        catboost_depth=int(model_cfg.get("catboost", {}).get("depth", 8)),
+        catboost_learning_rate=float(model_cfg.get("catboost", {}).get("learning_rate", 0.05)),
     )
-
-    thresholds = build_demand_thresholds(train_df["cnt"])
 
     model_path = resolve_path(artifacts_cfg.get("model_path", "artifacts/model.joblib"))
     metrics_path = resolve_path(artifacts_cfg.get("metrics_path", "artifacts/metrics.json"))
@@ -53,7 +53,7 @@ def main() -> None:
         model_name=train_result.model_name,
         metrics=train_result.metrics,
         all_metrics=train_result.all_metrics,
-        thresholds=thresholds,
+        thresholds=train_result.thresholds,
         model_path=model_path,
         metrics_path=metrics_path,
     )

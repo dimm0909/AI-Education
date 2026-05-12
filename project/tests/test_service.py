@@ -21,6 +21,9 @@ def test_service_health_and_predict(tmp_path: Path) -> None:
         random_state=42,
         n_estimators=60,
         max_depth=10,
+        catboost_iterations=80,
+        catboost_depth=6,
+        catboost_learning_rate=0.1,
     )
     thresholds = build_demand_thresholds(train_df["cnt"])
 
