@@ -37,6 +37,7 @@ eggs/
 .coverage
 .coverage.*
 htmlcov/
+project/artifacts/*.joblib
 
 # Журналы
 *.log
