@@ -135,6 +135,8 @@
 
 1. Запуск обучения:
    `python -m src.train --config configs/train.yaml`
+   (или скачивание предобученной модели:
+   `python -m src.data.download_pretrained_model`)
 2. Запуск API:
    `python -m src.service`
 3. Демонстрация:

@@ -71,7 +71,18 @@ cd project
 python -m src.data.make_sample --input data/raw/hour.csv --output data/sample/hour_sample.csv --rows 1200
 ```
 
-### 4.3. Обучение модели
+### 4.3. (Опционально) Скачать предобученную модель
+
+Публичная ссылка: <https://disk.yandex.ru/d/fUbi6bAAbJJTOA>
+
+```bash
+cd project
+python -m src.data.download_pretrained_model
+```
+
+После команды появится файл `artifacts/model.joblib`.
+
+### 4.4. (Опционально) Обучение модели локально
 
 ```bash
 cd project
@@ -83,8 +94,9 @@ python -m src.train --config configs/train.yaml
 - `artifacts/metrics.json`
 
 `model.joblib` не хранится в репозитории (только локально после обучения), чтобы не раздувать размер git-истории.
+Для запуска API достаточно получить `model.joblib` любым из двух способов: скачать предобученную модель или обучить локально.
 
-### 4.4. Запуск сервиса (FastAPI)
+### 4.5. Запуск сервиса (FastAPI)
 
 ```bash
 cd project

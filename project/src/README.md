@@ -5,6 +5,7 @@
 - `train.py` — запуск обучения и сохранения артефактов.
 - `data/`
   - `download_uci.py` — скачивание открытого датасета;
+  - `download_pretrained_model.py` — скачивание предобученной модели с Яндекс.Диска;
   - `dataset.py` — загрузка, валидация, split по времени;
   - `make_sample.py` — генерация уменьшенной выборки.
 - `features/transform.py` — генерация циклических признаков и препроцессор.
@@ -18,5 +19,6 @@
 
 ```bash
 python -m src.train
+python -m src.data.download_pretrained_model
 python -m src.service
 ```
