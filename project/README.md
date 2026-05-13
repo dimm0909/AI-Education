@@ -10,7 +10,7 @@
 - **Краткое описание:**
   Проект решает задачу прогноза количества аренд велосипедов на следующий час по погодным и календарным признакам.
   Используется открытый датасет UCI Bike Sharing Dataset.
-  Реализованы baseline и две улучшенные модели (RandomForest и CatBoost), а также FastAPI-сервис с endpoint’ами `/health` и `/predict`.
+  Реализованы baseline и улучшенные модели (RandomForest, CatBoost, LightGBM, XGBoost), а также FastAPI-сервис с endpoint’ами `/health` и `/predict`.
 
 ---
 
@@ -92,6 +92,7 @@ python -m src.train --config configs/train.yaml
 После обучения артефакты появятся в:
 - `artifacts/model.joblib`
 - `artifacts/metrics.json`
+- `artifacts/figures/*.png`
 
 `model.joblib` не хранится в репозитории (только локально после обучения), чтобы не раздувать размер git-истории.
 Для запуска API достаточно получить `model.joblib` любым из двух способов: скачать предобученную модель или обучить локально.
@@ -173,7 +174,8 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests -q
 1. Запуск обучения `python -m src.train` и вывод выбранной модели + метрик.
 2. Запуск API `python -m src.service`.
 3. Запросы `GET /health` и `POST /predict` с 2 разными сценариями (например, рабочее утро и дождливый вечер).
-4. Сравнение baseline, RandomForest и CatBoost по `artifacts/metrics.json` с метриками `RMSE`, `MAE`, `MAPE`, `accuracy`, `precision`, `recall`, `f1`.
+4. Сравнение baseline, RandomForest, CatBoost, LightGBM и XGBoost по `artifacts/metrics.json` с метриками `RMSE`, `MAE`, `MAPE`, `accuracy`, `precision`, `recall`, `f1`.
+   Дополнительно показываются графики из `artifacts/figures/`.
 
 ---
 
@@ -185,7 +187,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests -q
 - отсутствует онлайн-мониторинг drift.
 
 Дальнейшее развитие:
-- добавить альтернативные бустинги (LightGBM/XGBoost) и более глубокий тюнинг CatBoost;
+- расширить сетки гиперпараметров для CatBoost/LightGBM/XGBoost и добавить Bayesian optimization;
 - добавить логирование latency/ошибок в отдельное хранилище;
 - добавить периодическое переобучение модели по расписанию.
 
@@ -196,5 +198,5 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest tests -q
 Проект закрывает ключевые критерии шаблона:
 - есть рабочий сервис `/health` + `/predict`;
 - `/predict` использует сохранённую модель, а не заглушку;
-- есть EDA/эксперименты и сравнение baseline, RandomForest и CatBoost;
+- есть EDA/эксперименты и сравнение baseline, RandomForest, CatBoost, LightGBM, XGBoost;
 - есть конфиги, тесты, инструкции запуска и отчёт.

@@ -24,6 +24,16 @@ def test_service_health_and_predict(tmp_path: Path) -> None:
         catboost_iterations=80,
         catboost_depth=6,
         catboost_learning_rate=0.1,
+        catboost_tuning_iterations=[60, 80],
+        catboost_tuning_depths=[4, 6],
+        catboost_tuning_learning_rates=[0.05, 0.1],
+        lightgbm_n_estimators=100,
+        lightgbm_max_depth=6,
+        lightgbm_learning_rate=0.1,
+        lightgbm_num_leaves=31,
+        xgboost_n_estimators=100,
+        xgboost_max_depth=6,
+        xgboost_learning_rate=0.1,
     )
     thresholds = build_demand_thresholds(train_df["cnt"])
 

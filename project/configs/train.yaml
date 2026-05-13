@@ -15,7 +15,21 @@ model:
     iterations: 500
     depth: 8
     learning_rate: 0.05
+    tuning:
+      iterations: [500, 700, 900]
+      depths: [6, 8, 10]
+      learning_rates: [0.03, 0.05, 0.08]
+  lightgbm:
+    n_estimators: 500
+    max_depth: 8
+    learning_rate: 0.05
+    num_leaves: 31
+  xgboost:
+    n_estimators: 500
+    max_depth: 8
+    learning_rate: 0.05
 
 artifacts:
   model_path: artifacts/model.joblib
   metrics_path: artifacts/metrics.json
+  figures_dir: artifacts/figures

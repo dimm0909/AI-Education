@@ -1,13 +1,13 @@
 {
   "selected_model": "improved_catboost_regressor",
   "selected_metrics": {
-    "rmse": 63.86829402383239,
-    "mae": 41.85262801781167,
-    "mape": 0.5047812108721189,
-    "accuracy": 0.8857882623705409,
-    "precision_macro": 0.8738210283356115,
-    "recall_macro": 0.8655778406125204,
-    "f1_macro": 0.868587254537502
+    "rmse": 63.36605287578041,
+    "mae": 41.401073896091376,
+    "mape": 0.4892799340019469,
+    "accuracy": 0.883199079401611,
+    "precision_macro": 0.8692558391526714,
+    "recall_macro": 0.8588712393687589,
+    "f1_macro": 0.86345294019862
   },
   "all_metrics": {
     "baseline_linear_regression": {
@@ -22,20 +22,38 @@
     "improved_random_forest": {
       "rmse": 80.45598652530944,
       "mae": 53.88708114618152,
-      "mape": 0.35385412340662853,
+      "mape": 0.3538541234066286,
       "accuracy": 0.8334292289988493,
       "precision_macro": 0.8197027498784774,
       "recall_macro": 0.8311556798904706,
       "f1_macro": 0.8207062961861986
     },
     "improved_catboost_regressor": {
-      "rmse": 63.86829402383239,
-      "mae": 41.85262801781167,
-      "mape": 0.5047812108721189,
-      "accuracy": 0.8857882623705409,
-      "precision_macro": 0.8738210283356115,
-      "recall_macro": 0.8655778406125204,
-      "f1_macro": 0.868587254537502
+      "rmse": 63.36605287578041,
+      "mae": 41.401073896091376,
+      "mape": 0.4892799340019469,
+      "accuracy": 0.883199079401611,
+      "precision_macro": 0.8692558391526714,
+      "recall_macro": 0.8588712393687589,
+      "f1_macro": 0.86345294019862
+    },
+    "improved_lightgbm_regressor": {
+      "rmse": 66.18851249278696,
+      "mae": 43.85446135907507,
+      "mape": 0.4428962342021889,
+      "accuracy": 0.8714039125431531,
+      "precision_macro": 0.8557024578611521,
+      "recall_macro": 0.8577832670288368,
+      "f1_macro": 0.8550470955196564
+    },
+    "improved_xgboost_regressor": {
+      "rmse": 70.20457689629288,
+      "mae": 45.92972183227539,
+      "mape": 0.37129849195480347,
+      "accuracy": 0.8647871116225546,
+      "precision_macro": 0.8501248789940815,
+      "recall_macro": 0.8567554363203409,
+      "f1_macro": 0.8510055966250348
     }
   },
   "thresholds": {

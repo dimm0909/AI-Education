@@ -4,7 +4,7 @@ import argparse
 import logging
 
 from src.data.dataset import get_train_test_split, load_dataset, pick_training_data
-from src.models.trainer import save_artifacts, train_models
+from src.models.trainer import save_artifacts, save_training_figures, train_models
 from src.utils.config import load_yaml, resolve_path
 from src.utils.logging_utils import setup_logging
 
@@ -43,6 +43,19 @@ def main() -> None:
         catboost_iterations=int(model_cfg.get("catboost", {}).get("iterations", 500)),
         catboost_depth=int(model_cfg.get("catboost", {}).get("depth", 8)),
         catboost_learning_rate=float(model_cfg.get("catboost", {}).get("learning_rate", 0.05)),
+        catboost_tuning_iterations=[int(v) for v in model_cfg.get("catboost", {}).get("tuning", {}).get("iterations", [500, 700, 900])],
+        catboost_tuning_depths=[int(v) for v in model_cfg.get("catboost", {}).get("tuning", {}).get("depths", [6, 8, 10])],
+        catboost_tuning_learning_rates=[
+            float(v)
+            for v in model_cfg.get("catboost", {}).get("tuning", {}).get("learning_rates", [0.03, 0.05, 0.08])
+        ],
+        lightgbm_n_estimators=int(model_cfg.get("lightgbm", {}).get("n_estimators", 500)),
+        lightgbm_max_depth=int(model_cfg.get("lightgbm", {}).get("max_depth", 8)),
+        lightgbm_learning_rate=float(model_cfg.get("lightgbm", {}).get("learning_rate", 0.05)),
+        lightgbm_num_leaves=int(model_cfg.get("lightgbm", {}).get("num_leaves", 31)),
+        xgboost_n_estimators=int(model_cfg.get("xgboost", {}).get("n_estimators", 500)),
+        xgboost_max_depth=int(model_cfg.get("xgboost", {}).get("max_depth", 8)),
+        xgboost_learning_rate=float(model_cfg.get("xgboost", {}).get("learning_rate", 0.05)),
     )
 
     model_path = resolve_path(artifacts_cfg.get("model_path", "artifacts/model.joblib"))
@@ -58,11 +71,23 @@ def main() -> None:
         metrics_path=metrics_path,
     )
 
+    figures_dir = resolve_path(artifacts_cfg.get("figures_dir", "artifacts/figures"))
+    saved_figures = save_training_figures(
+        all_metrics=train_result.all_metrics,
+        y_true=train_result.y_test,
+        predictions_by_model=train_result.predictions_by_model,
+        best_model_name=train_result.model_name,
+        catboost_tuning_results=train_result.catboost_tuning_results,
+        figures_dir=figures_dir,
+    )
+
     LOGGER.info("Training complete")
     LOGGER.info("Selected model: %s", train_result.model_name)
     LOGGER.info("Selected metrics: %s", train_result.metrics)
     LOGGER.info("Model saved to: %s", model_path)
     LOGGER.info("Metrics saved to: %s", metrics_path)
+    if saved_figures:
+        LOGGER.info("Saved figures: %s", saved_figures)
 
 
 if __name__ == "__main__":

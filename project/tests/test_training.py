@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from src.data.dataset import get_train_test_split, load_dataset
-from src.models.trainer import build_demand_thresholds, save_artifacts, train_models
+from src.models.trainer import build_demand_thresholds, save_artifacts, save_training_figures, train_models
 
 
 def test_training_and_artifact_saving(tmp_path: Path) -> None:
@@ -20,12 +20,24 @@ def test_training_and_artifact_saving(tmp_path: Path) -> None:
         catboost_iterations=60,
         catboost_depth=6,
         catboost_learning_rate=0.1,
+        catboost_tuning_iterations=[60, 80],
+        catboost_tuning_depths=[4, 6],
+        catboost_tuning_learning_rates=[0.05, 0.1],
+        lightgbm_n_estimators=80,
+        lightgbm_max_depth=6,
+        lightgbm_learning_rate=0.1,
+        lightgbm_num_leaves=31,
+        xgboost_n_estimators=80,
+        xgboost_max_depth=6,
+        xgboost_learning_rate=0.1,
     )
 
     assert result.model_name in {
         "baseline_linear_regression",
         "improved_random_forest",
         "improved_catboost_regressor",
+        "improved_lightgbm_regressor",
+        "improved_xgboost_regressor",
     }
     assert result.metrics["rmse"] > 0
     assert result.metrics["accuracy"] >= 0
@@ -53,3 +65,15 @@ def test_training_and_artifact_saving(tmp_path: Path) -> None:
 
     metrics_payload = json.loads(metrics_path.read_text(encoding="utf-8"))
     assert "selected_model" in metrics_payload
+
+    figures_dir = tmp_path / "figures"
+    saved_figures = save_training_figures(
+        all_metrics=result.all_metrics,
+        y_true=result.y_test,
+        predictions_by_model=result.predictions_by_model,
+        best_model_name=result.model_name,
+        catboost_tuning_results=result.catboost_tuning_results,
+        figures_dir=figures_dir,
+    )
+    for figure_path in saved_figures:
+        assert Path(figure_path).exists()

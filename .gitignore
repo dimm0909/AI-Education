@@ -38,6 +38,7 @@ eggs/
 .coverage.*
 htmlcov/
 project/artifacts/*.joblib
+project/catboost_info/
 
 # Журналы
 *.log

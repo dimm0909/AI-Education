@@ -9,7 +9,7 @@
   - `dataset.py` — загрузка, валидация, split по времени;
   - `make_sample.py` — генерация уменьшенной выборки.
 - `features/transform.py` — генерация циклических признаков и препроцессор.
-- `models/trainer.py` — baseline + улучшенные модели (RandomForest, CatBoost), метрики, выбор финальной модели.
+- `models/trainer.py` — baseline + улучшенные модели (RandomForest, CatBoost, LightGBM, XGBoost), внутренний тюнинг CatBoost, метрики и графики.
 - `service/`
   - `app.py` — FastAPI приложение (`/health`, `/predict`);
   - `__main__.py` — запуск uvicorn.
